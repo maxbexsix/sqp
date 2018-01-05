@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# SQL*Plus readline wrapper with fzf history search
+
+[ -z "$LD_LIBRARY_PATH" ] && export LD_LIBRARY_PATH=/usr/lib/oracle/12.1/client64/lib
+
+ARG=$1
+# if no arguments provided, assuming entering w/o connecting
+[ -z "$ARG" ] && ARG=/nolog || ARG="$@"
+
+# you may want to specify fullpath to sqlplus below
+SQLPLUS="sqlplus"
+pushd ${0%/*} >/dev/null
+
+SELF=$(pwd)
+HIBN=sql.his
+HISTF=$SELF/$HIBN
+HIBKD=$SELF/.hbakup
+[ -d $HIBKD ] || mkdir -p $HIBKD 
+
+TS=$(date +"%Y-%m-%d_%H%M%S")
+[ -f $HISTF ] && cp $HISTF $HIBKD/${TS}_$HIBN
+
+trap 'popd >/dev/null' EXIT
+
+
+#RLW_FILT_OPT="-z $SELF/rlw_fzf_hist"  
+# << this stopped working after update rlwrap
+# reporting rlwrap: error: rlw_fzf_hist: There is no `hotkey_handler' setter/getter in class RlwrapFilter at /home/viktorkh/bin/100/rlw_fzf_hist line 33 
+# so commend it out so far until fix is there
+#        "$RLW_FILT_OPT" 
+pwd
+rlwrap  -pyellow \
+        --history-filename $HISTF \
+        --histsize 9999 \
+        --history-no-dupes 2 \
+ $SQLPLUS   $ARG
+
+
+#rlwrap  -pyellow \
+#        --history-filename $HISTF \
+#        --histsize 9999 \
+#        --history-no-dupes 2 \
+#         $SQLPLUS   $ARG
+
