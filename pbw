@@ -4,6 +4,10 @@ f=$(mktemp)
 [ -z "$1" ] && { cat - >$f ; LOC=$f ; }
 [ -r "$1" ] &&  LOC="$1"
 
-curl -skvF "c=@${LOC}" https://ptpb.pw
+EXPSEC=${2:-7200}
+[ ${EXPSEC//[0-9]} = "" ] || EXPSEC=7200
+
+
+curl -skvF "c=@${LOC}" -F sunset=${EXPSEC} https://ptpb.pw
 
 [ -f "$f" ] && rm -f "$f"
