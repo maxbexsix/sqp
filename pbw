@@ -1,0 +1,9 @@
+#!/bin/bash
+
+f=$(mktemp)
+[ -z "$1" ] && { cat - >$f ; LOC=$f ; }
+[ -r "$1" ] &&  LOC="$1"
+
+curl -skvF "c=@${LOC}" https://ptpb.pw
+
+[ -f "$f" ] && rm -f "$f"
